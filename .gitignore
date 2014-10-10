@@ -1,0 +1,6 @@
+generated_*
+*.ahk
+launch_ahk
+.ruby-gemset
+.ruby-version
+Gemfile.lock

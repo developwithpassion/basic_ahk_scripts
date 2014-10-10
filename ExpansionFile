@@ -1,0 +1,49 @@
+expand do
+
+  look_for_templates_in "*.{erb,mustache}"
+
+  class FileAppender
+    attr_reader :file_name
+
+    def initialize(file_name)
+      @file_name = file_name
+    end
+
+    def append(files)
+      files.each do |file|
+        `cat #{file} >> #{file_name}`
+      end
+    end
+  end
+
+  cleanup do
+    generate_ahk_scripts
+  end
+
+  def generate_ahk_scripts
+    Dir.glob("ahk_*").select { |file| generated_file?(file) }.each do |file|
+
+      file_name = "generated_#{file}"
+      appender = FileAppender.new(file_name)
+      files = headers.concat([file])
+                     .concat(footers)
+      appender.append files
+    end
+  end
+
+  def headers
+    generated_files("header_*")
+  end
+
+  def footers
+    generated_files("footer_*")
+  end
+
+  def generated_files(prefix)
+    Dir.glob("#{prefix}*").select { |file| generated_file?(file) }
+  end
+
+  def generated_file?(file)
+    /^.*\.(erb|mustache)$/ !~ file
+  end
+end
